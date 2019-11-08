@@ -157,20 +157,12 @@ public class EmployeeController {
 		return Msg.success().add("pageInfo", page);
 	}
 	
-	@ResponseBody
-	@RequestMapping("/depts")
-	public Msg getDepts() {
-		Msg msg = new Msg();
-		List<Department> depts = departmentService.getAll();
-		
-		return Msg.success().add("depts", depts);
-		
-	}
+
 	
 	
 	@RequestMapping("/toList")
 	public String toList() {
-		return "list";
+		return "manager_empList";
 	}
 	@RequestMapping("/empsPre")
 	public String getAll(@RequestParam(value = "pn", defaultValue = "1") Integer pn, Map<String , Object> map) {

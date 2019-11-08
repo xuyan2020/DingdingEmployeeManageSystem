@@ -1,0 +1,451 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>通知公告</title>
+	<%
+		pageContext.setAttribute("APP_PATH", request.getContextPath());
+	%>
+	<style type="text/css">
+		body{ 
+			padding-top: 70px; 
+			padding-bottom: 70px; 
+		}
+	</style>
+	
+	<script type="text/javascript" src="${APP_PATH }/static/js/jquery-3.4.1.js"></script>
+	<script type="text/javascript" src="${APP_PATH }/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="${APP_PATH }/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" />
+	<script type="text/javascript">
+		$(function() {
+			/* 根据ID查找部门名称，初始化通知信息内的面向部门 */
+			$(".toDept").each(function(){
+				var toDeptId = $(this).attr("value");
+				var span = this;
+				/* 因为检测AJAX执行比EL表达式要快，所以暂停一秒等页面加载完成后执行 */
+				setTimeout(function(){
+					if(toDeptId == 0){
+						$(span).text("全体成员");
+						return false;
+					}
+					var url = "${APP_PATH}/dept/depts";
+					var args = {
+						"date": new Date()
+					};
+					$.get(url, args, function(result) {
+						var depts = result.extend.depts;
+						$.each(depts, function(index, item) {
+							if(item.deptid == toDeptId){
+								$(span).text(item.deptname);
+								return false;
+							}
+						})
+						
+						return false;
+					})
+				}, 1000);
+				
+			})
+			
+			/* 给通知栏绑定折叠动画效果 */
+			$(".titleA").click(function() {
+				var contentId = "#a" + $(this).attr("value");
+				if($(contentId).css("display") == "none"){
+					$(contentId).show(330);
+				}else {
+					$(contentId).hide(330);
+				}
+				return false;
+			})
+			
+			/* 发布通知 */
+			$("#addNoticeBtn").click(function(){
+				$("#addNoticeModal").modal();
+				$("#deptSelect").empty();
+				/* 获取全部部门信息 */
+				var url = "${APP_PATH}/dept/depts";
+				var args = {
+					"date": new Date()
+				};
+				$.get(url, args, function(result) {
+					var depts = result.extend.depts;
+					$("#deptSelect").append($("<option></option>").text("全体成员").val("0"));
+					$.each(depts, function(index, item) {
+						$("#deptSelect").append($("<option></option>").text(item.deptname).val(item.deptid));
+					})
+					return false;
+				})
+				/* 点击发布按钮后 */
+				$("#saveNewNotice").click(function(){
+					$("#saveNewNotice").attr("disabled", "disabled");
+					setTimeout(function(){
+						$("#saveNewNotice").removeAttr("disabled");
+					}, 1500);
+					var titleReg = /(^[\u4e00-\u9fa5]{1,20}$)|(^[a-zA-Z0-9_-]{1,40}$)/
+					var contentReg = /^[\w\W]{1,100}$/
+					var title = $("#newTitle").val();
+					var content = $("#newContent").val();
+					if(!titleReg.test(title)){
+						$("#newTitle").parent().addClass("has-error");
+						$("#newTitle").next().next().text("标题20个汉字或40个字符以内");
+						return false;
+					}else {
+						$("#newTitle").parent().removeClass("has-error");
+						$("#newTitle").next().next().text("");
+					}
+					if(!contentReg.test(content)){
+						$("#newContent").parent().addClass("has-error");
+						$("#newContent").next().next().text("正文100个汉字或200个字符以内");
+						return false;
+					}else {
+						$("#newContent").parent().removeClass("has-error");
+						$("#newContent").next().next().text("");
+					}
+					
+					/* 合格之后提交新通知 */
+					var url = "${APP_PATH }/notice/notice";
+					var args = $("#newNoticeForm").serialize();
+					$.post(url, args, function(result){
+						window.location.href = "${APP_PATH }/toNotice.do";
+					})
+					
+				})
+				
+			})
+			
+			/* 修改通知 */
+			$(document).on("click", ".editNoticeBtn", function(){
+				$("#editNoticeModal").modal();
+				$("#editDeptSelect").empty();
+				/* 获取全部部门信息 */
+				var url = "${APP_PATH}/dept/depts";
+				var args = {
+					"date": new Date()
+				};
+				$.get(url, args, function(result) {
+					var depts = result.extend.depts;
+					$("#editDeptSelect").append($("<option></option>").text("全体成员").val("0"));
+					$.each(depts, function(index, item) {
+						$("#editDeptSelect").append($("<option></option>").text(item.deptname).val(item.deptid));
+					})
+					return false;
+				})
+				
+				/* 获取该通知内容并回显 */
+				var noticeId = $(this).attr("value");
+				var url = "${APP_PATH }/notice/notice/" + noticeId;
+				$.get(url, args, function(result){
+					var notice = result.extend.notice;
+					$("#editTitle").val(notice.title);
+					$("#editContent").val(notice.content);
+					$("#editDeptSelect option").each(function(index, item){
+						if($(item).val() == notice.todeptid){
+							$(this).prop("selected", true);
+						}else {
+							$(this).prop("selected", false);
+						}
+					})
+				})
+				
+				/* 点击保存按钮 */
+				$("#saveEditNotice").click(function(){
+					$("#saveEditNotice").attr("disabled", "disabled");
+					setTimeout(function(){
+						$("#saveEditNotice").removeAttr("disabled");
+					}, 1500);
+					var url = "${APP_PATH }/notice/notice/" + noticeId;
+					var args = $("#editNoticeForm").serialize() + "&_method=PUT";
+					$.post(url, args, function(result){
+						alert("保存成功！");
+						window.location.href = "${APP_PATH }/toNotice.do";
+					})
+				})
+				return false;
+			})
+			
+			/* 删除通知 */
+			$(document).on("click", ".delNoticeBtn", function(){
+				var flag = confirm("是否确定删除该条通知？");
+				if(flag){
+					var noticeId = $(this).attr("value");
+					var url = "${APP_PATH }/notice/notice/" + noticeId;
+					var args = {"_method" : "DELETE"};
+					$.post(url, args, function(result){
+						alert("删除成功!");
+						window.location.href = "${APP_PATH }/toNotice.do";
+					})
+					
+				}
+				return false;
+			})
+		})
+	</script>
+
+</head>
+<body>
+	<!-- 新通知模态框 -->
+	<div class="modal fade" id="addNoticeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">发布新通知</h4>
+				</div>
+				<div class="modal-body">
+	
+					<form class="form-horizontal" id="newNoticeForm">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">标题</label>
+							<div class="col-sm-10 has-feedback">
+								<input name="title" type="input" class="form-control" id="newTitle" placeholder="不得超过20个字符">
+								<span></span>
+								<span id="nameHelpBlock" class="help-block"></span>
+							</div>
+						</div>
+	
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">内容</label>
+							<div class="col-sm-10">
+								<textarea name="content" class="form-control" rows="5" id="newContent" placeholder="100个汉字或200个字符以内"></textarea>
+								<span></span>
+								<span class="help-block"></span>
+							</div>
+						</div>
+	
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">面向群体</label>
+							<div class="col-sm-4">
+								<select id="deptSelect" class="form-control" name="todeptid">
+									
+								</select>
+							</div>
+						</div>
+					</form>
+	
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<button type="button" class="btn btn-primary" id="saveNewNotice">发布</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 修改模态框 -->
+	<div class="modal fade" id="editNoticeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">修改通知</h4>
+				</div>
+				<div class="modal-body">
+	
+					<form class="form-horizontal" id="editNoticeForm">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">标题</label>
+							<div class="col-sm-10 has-feedback">
+								<input name="title" type="input" class="form-control" id="editTitle" placeholder="不得超过20个字符">
+								<span></span>
+								<span id="nameHelpBlock" class="help-block"></span>
+							</div>
+						</div>
+	
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">内容</label>
+							<div class="col-sm-10">
+								<textarea name="content" class="form-control" rows="5" id="editContent" placeholder="100个汉字或200个字符以内"></textarea>
+								<span></span>
+								<span class="help-block"></span>
+							</div>
+						</div>
+	
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">面向群体</label>
+							<div class="col-sm-4">
+								<select id="editDeptSelect" class="form-control" name="todeptid">
+									
+								</select>
+							</div>
+						</div>
+					</form>
+	
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<button type="button" class="btn btn-primary" id="saveEditNotice">保存</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<!-- 标题栏 -->
+	<div class="row">
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+					 aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Brand</a>
+				</div>
+	
+				<!-- Collect the nav links, forms, and other content for toggling -->
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="${APP_PATH}/toNotice.do">首页 <span class="sr-only">(current)</span></a></li>
+						<li ><a href="${APP_PATH}/tolist.do">员工管理</a></li>
+						<li>
+							<a href="#">部门管理</a>
+						</li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a href="#">你好！&nbsp;</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+								&nbsp;${sessionScope.username }&nbsp;&nbsp;
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="#">个人信息</a></li>
+								<li><a href="#">修改密码</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="${APP_PATH }/logout.do">注销登录</a></li>
+							</ul>
+						</li>
+					</ul>
+				</div><!-- /.navbar-collapse -->
+			</div><!-- /.container-fluid -->
+		</nav>
+	</div>
+	
+		<!-- 显示页面 -->
+	<div class="container">
+		<!-- 标题 -->
+		<div class="row">
+			<div class="page-header">
+				<h1>叮叮员工管理系统<small>&nbsp;&nbsp;通知公告</small></h1>
+			</div>
+		</div>
+		<div class="row">
+			
+			<ul class="nav navbar-nav navbar-right" >
+				<div style="border: 0px, 0px;">
+					<form class="navbar-form navbar-left">
+						<div class="form-group">
+							<button type="button" class="btn btn-default" id="addNoticeBtn">
+								<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+								发布新通知
+							</button>
+						</div>
+					</form>
+				</div>
+			</ul>	
+		</div>
+		<div class="row">
+			<c:forEach items="${pageInfo.list }" var="notice">
+				<div class="panel-group" id="accordion">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a href="#" class="titleA" value="${notice.id }"> 
+									${notice.title }
+								</a>
+							</h4>
+							<h5>发布人:${notice.empid }</h5>
+							<h5>发布时间:<fmt:formatDate value="${notice.publishtime }"  pattern="yyyy-MM-dd HH:mm:ss"/></h5>
+							
+							<h5>
+								面向部门：<span class="toDept" value="${notice.todeptid }"></span>
+							</h5>
+							<a href="#" value="${notice.id }" class="editNoticeBtn">修改</a>&nbsp;&nbsp;&nbsp;&nbsp;
+							<a href="#" value="${notice.id }" class="delNoticeBtn">删除</a>
+						</div>
+						<div id="a${notice.id }" class="panel-collapse collapse in" style="display:none">
+							<div class="panel-body">
+								<span>${notice.content }</span>
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</c:forEach>
+			
+		</div>
+		
+		
+		<div class="row">
+				<ul class="nav navbar-nav">
+					<br />
+					<div>
+						<h5>当前第${pageInfo.pageNum }页，共${pageInfo.pages }页，共查询到${pageInfo.total }条记录</h5>
+					</div>
+				</ul>
+				<ul class="nav navbar-nav navbar-right" >
+					<div id="p2" class="" style="border: 0px, 0px;">
+						<nav aria-label="Page navigation">
+							<ul class="pagination">
+								<li><a href="${APP_PATH }/notice/notices?pn=1">首页</a></li>
+								<c:if test="${pageInfo.hasPreviousPage }">
+									<li>
+										<a href="${APP_PATH }/notice/notices?pn=${pageInfo.pageNum - 1 }" aria-label="Previous"> 
+											<span aria-hidden="true">&laquo;</span>
+										</a>
+									</li>
+								</c:if>
+								
+								<c:forEach items="${pageInfo.navigatepageNums }" var="page_num">
+									<c:if test="${page_num == pageInfo.pageNum }">
+										<li class="active"><a href="#">${page_num }</a></li>
+									</c:if>
+									<c:if test="${page_num != pageInfo.pageNum }">
+										<li><a href="${APP_PATH }/notice/notices?pn=${page_num }">${page_num }</a></li>
+									</c:if>
+								</c:forEach>
+								<c:if test="${pageInfo.hasNextPage }">
+									<li>
+										<a href="${APP_PATH }/notice/notices?pn=${pageInfo.pageNum + 1 }" aria-label="Next"> 
+											<span aria-hidden="true">&raquo;</span>
+										</a>
+									</li>
+								</c:if>
+								
+								<li><a href="${APP_PATH }/notice/notices?pn=${pageInfo.pages }">尾页</a></li>
+							</ul>
+						</nav>
+					</div>
+				</ul>		
+			</div>
+			<nav class="navbar navbar-default navbar-fixed-bottom">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="text-align: center; width: 1920px;">
+							Copyright © 2019 - . All Rights Reserved.徐岩 版权所有
+						</div>
+					</div>
+				</div>
+			</nav>
+		</div>
+		
+	</div>
+	
+		
+	
+
+
+</body>
+</html>

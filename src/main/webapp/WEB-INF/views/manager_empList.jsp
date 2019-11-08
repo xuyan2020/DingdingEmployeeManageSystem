@@ -275,7 +275,7 @@
 					editID = $(this).val();
 
 					/* ajax获取部门信息 */
-					var url = "${APP_PATH}/emp/depts";
+					var url = "${APP_PATH}/dept/depts";
 					var args = {
 						"date": new Date()
 					};
@@ -753,26 +753,12 @@
 					<!-- Collect the nav links, forms, and other content for toggling -->
 					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 						<ul class="nav navbar-nav">
-							<li><a href="#">首页 <span class="sr-only">(current)</span></a></li>
-							<li class="active"><a href="${APP_PATH}/toList">员工管理</a></li>
+							<li><a href="${APP_PATH}/toNotice.do">首页 <span class="sr-only">(current)</span></a></li>
+							<li class="active"><a href="${APP_PATH}/toList.do">员工管理</a></li>
 							<li>
 								<a href="#">部门管理</a>
 							</li>
 						</ul>
-							<!-- 按钮下拉列表 -->
-							<!--
-							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">部门管理
-								</a>
-								 <ul class="dropdown-menu">
-										<li><a href="#">Action</a></li>
-										<li><a href="#">Another action</a></li>
-										<li><a href="#">Something else here</a></li>
-										<li role="separator" class="divider"></li>
-										<li><a href="#">Separated link</a></li>
-										<li role="separator" class="divider"></li>
-										<li><a href="#">One more separated link</a></li>
-									  </ul> -->
 						<ul class="nav navbar-nav navbar-right">
 							<li><a href="#">你好！&nbsp;</a></li>
 							<li class="dropdown">
@@ -794,22 +780,24 @@
 		</div>
 		<!-- 显示页面 -->
 		<div class="container">
-			<!-- 标题 -->
-			<div class="page-header">
-				<h1>叮叮员工管理系统<small>CRUD</small></h1>
+			<div class="row">
+				<!-- 标题 -->
+				<div class="page-header">
+					<h1>叮叮员工管理系统<small>CRUD</small></h1>
+				</div>
 			</div>
 
 			
 			<!-- 按钮 -->
 			<div class="row">
 				<ul class="nav navbar-nav">
-					<div  class="">
+					<div>
 						<button type="button" class="btn btn-default" id="addEmpModalBtn">添加</button>
 						<button type="button" class="btn btn-default" id="delEmpModalBtn">删除</button>
 					</div>
 				</ul>
 				<ul class="nav navbar-nav navbar-right" >
-					<div  class="" style="border: 0px, 0px;">
+					<div style="border: 0px, 0px;">
 						<form class="navbar-form navbar-left">
 							<div class="form-group">
 								<button id="searchBtn" type="submit" class="btn btn-default">查找</button>

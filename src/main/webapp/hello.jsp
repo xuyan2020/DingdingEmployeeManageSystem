@@ -8,6 +8,7 @@
 </head>
 <body>
 	<a href="emp/toList">empsAjax</a><br><br><br>
+	<a href="toNotice.do">notice</a><br><br><br>
 	<a href="emp/empsPre">empsPre</a>
 </body>
 </html>

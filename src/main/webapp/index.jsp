@@ -66,7 +66,7 @@
 							$("#passwordLonin").val("");
 							
 							/* 转发到其他页面 */
-							window.location.href = "${APP_PATH }/tolist.do?username=" + username + "&empid=" + id;
+							window.location.href = "${APP_PATH }/login.do?username=" + username + "&empid=" + id;
 						}
 					}
 					return false;

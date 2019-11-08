@@ -12,11 +12,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.xuyan.crud.bean.Department;
 import com.xuyan.crud.bean.Employee;
+import com.xuyan.crud.bean.Notice;
 import com.xuyan.crud.bean.User;
 import com.xuyan.crud.bean.UserExample;
 import com.xuyan.crud.bean.UserExample.Criteria;
 import com.xuyan.crud.dao.DepartmentMapper;
 import com.xuyan.crud.dao.EmployeeMapper;
+import com.xuyan.crud.dao.NoticeMapper;
 import com.xuyan.crud.dao.UserMapper;
 
 /*
@@ -37,6 +39,8 @@ public class MapperTest {
 	EmployeeMapper employeeMapper;
 	@Autowired
 	UserMapper userMapper;
+	@Autowired
+	NoticeMapper noticeMapper;
 	@Autowired
 	SqlSession sqlSession;
 	
@@ -68,6 +72,12 @@ public class MapperTest {
 		for (User user : l) {
 			System.out.println(user);
 		}
+	}
+	
+	@Test
+	public void testNotice() {
+		Notice notice = noticeMapper.selectByPrimaryKey(10);
+		System.out.println(notice);
 	}
 	
 }
