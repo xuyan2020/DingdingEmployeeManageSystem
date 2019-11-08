@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<a href="toList">empsAjax</a><br><br><br>
-	<a href="empsPre">empsPre</a>
+	<a href="emp/toList">empsAjax</a><br><br><br>
+	<a href="emp/empsPre">empsPre</a>
 </body>
 </html>

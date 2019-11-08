@@ -30,7 +30,7 @@
 			/* AJAX页面跳转函数 */
 			function toPage(pn) {
 				if(switchEmpsAndSearch == 0){
-					var url = "${APP_PATH}/emps";
+					var url = "${APP_PATH}/emp/emps";
 					var args = {
 						"pn": pn
 					};
@@ -42,7 +42,7 @@
 					})
 				}else if(switchEmpsAndSearch == 1){
 					console.log(searchStr);
-					var url = "${APP_PATH}/empByLikeName";
+					var url = "${APP_PATH}/emp/empByLikeName";
 					var args = {
 						"name": "%" + searchStr + "%",
 						"pn": pn
@@ -73,11 +73,15 @@
 					var addBtn = $("<button></button>").attr("value", item.id).addClass("btn btn-success btn-sm editEmpBtn")
 						.append($("<span></span>").addClass("glyphicon glyphicon-pencil"))
 						.append(" ").append("编辑");
-					var deleteBtn = $("<button></button>").attr("value", item.id).attr("name", item.lastName).addClass(
-							"btn btn-danger btn-sm delEmpBtn")
+					var accountBtn = $("<button></button>").attr("value", item.id).attr("name", item.lastName)
+						.addClass("btn btn-primary btn-sm accountEmpBtn")
+						.append($("<span></span>").addClass("glyphicon glyphicon-user"))
+						.append(" ").append("账户");
+					var deleteBtn = $("<button></button>").attr("value", item.id).attr("name", item.lastName)
+						.addClass("btn btn-danger btn-sm delEmpBtn")
 						.append($("<span></span>").addClass("glyphicon glyphicon-trash"))
 						.append(" ").append("删除");
-					var operateNode = $("<td></td>").append(addBtn).append(" ").append(deleteBtn);
+					var operateNode = $("<td></td>").append(addBtn).append(" ").append(accountBtn).append(" ").append(deleteBtn);
 
 					var newTrNode = $("<tr></tr>").append(checkBoxNode).append(idNode).append(nameNode)
 						.append(genderNode).append(emailNode).append(deptidNode)
@@ -146,7 +150,7 @@
 					});
 
 					/* ajax获取部门信息 */
-					var url = "${APP_PATH}/depts";
+					var url = "${APP_PATH}/emp/depts";
 					var args = {
 						"date": new Date()
 					};
@@ -162,6 +166,10 @@
 
 				/* 点击模态框保存发送请求 */
 				$("#saveNewEmp").click(function() {
+					$("#saveNewEmp").attr("disabled", "disabled");
+					setTimeout(function() {
+						$("#saveNewEmp").removeAttr("disabled");
+					},1500)
 					/* 校验姓名格式 */
 					var name = $("#newName").val();
 					var nameReg = /^[a-zA-Z0-9_]{3,15}$/;
@@ -180,7 +188,7 @@
 						$("#nameHelpBlock").text("此name可用");
 					}
 					/* 校验姓名是否存在 */
-					var url = "${APP_PATH}/empByName";
+					var url = "${APP_PATH}/emp/empByName";
 					var args = {
 						"name": $("#newName").val()
 					};
@@ -220,7 +228,7 @@
 					}
 					$("#saveNewEmp").attr("disabled", "disabled");
 					/* 如果没有问题则提交 */
-					var url = "${APP_PATH}/emps";
+					var url = "${APP_PATH}/emp/emps";
 					var args = $("#newEmpForm").serialize();
 					$.post(url, args, function(result) {
 						/* 后端校验通过 */
@@ -267,7 +275,7 @@
 					editID = $(this).val();
 
 					/* ajax获取部门信息 */
-					var url = "${APP_PATH}/depts";
+					var url = "${APP_PATH}/emp/depts";
 					var args = {
 						"date": new Date()
 					};
@@ -281,7 +289,7 @@
 
 
 					/* 获取员工信息并回显 */
-					var url = "${APP_PATH}/emp/" + $(this).val();
+					var url = "${APP_PATH}/emp/emp/" + $(this).val();
 					var args = {
 						"date": new Date()
 					};
@@ -307,6 +315,10 @@
 					})
 
 					$("#editEmp").click(function() {
+						$("#editEmp").attr("disabled", "disabled");
+						setTimeout(function() {
+							$("#editEmp").removeAttr("disabled");
+						},1000)
 						/* 校验邮箱格式 */
 						var email = $("#editEmail").val();
 						var emailReg = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$/;
@@ -327,7 +339,7 @@
 						}
 						$("#editEmp").attr("disabled", "disabled");
 						/* 如果没有问题则提交 */
-						var url = "${APP_PATH}/emp/" + editID;
+						var url = "${APP_PATH}/emp/emp/" + editID;
 						var args = $("#editEmpForm").serialize() + "&_method=PUT";
 						$.post(url, args, function(result) {
 							/* 后端校验通过 */
@@ -359,7 +371,7 @@
 
 					var flag = confirm("确定删除" + name + "的信息吗？");
 					if (flag) {
-						var url = "${APP_PATH}/emp/" + id;
+						var url = "${APP_PATH}/emp/emp/" + id;
 						var args = {
 							"date": new Date(),
 							"_method": "DELETE"
@@ -370,6 +382,73 @@
 					}
 					return false;
 				})
+				
+				/* 查看员工账户 */
+				
+				$(document).on("click", ".accountEmpBtn", function() {
+					
+					var userId = $(this).val();
+					var lastName = $(this).attr("name");
+					var url = "${APP_PATH }/user/user/" + userId;
+					var args = {"date" : new Date()};
+					$.get(url, args, function(result) {
+						if(result.extend.user != null){
+							$("#accountModal").modal({
+								/* 点击背景不关闭 */
+								backdrop: "static"
+							});
+							var dbUsername = result.extend.user.username;
+							var dbPassword = result.extend.user.password;
+							var dbQuestion = result.extend.user.question;
+							var dbAnswer = result.extend.user.answer;
+							var dbRegtime = result.extend.user.regtime;
+							var dbUsertype = result.extend.user.usertype;
+							$("#accountModalLabel").text(lastName + "的账户信息")
+							$("#empUserId").text(userId);
+							$("#empUsername").text(dbUsername);
+							$("#empUserPassword").text(dbPassword);
+							$("#empUserQuestion").text(dbQuestion);
+							$("#empUserAnswer").text(dbAnswer);
+							$("#empUserRegTime").text(dbRegtime);
+							/* 将账户类型选中 */
+							$("#" + dbUsertype).prop("checked", true);
+							/* 点击账户类型区域进行判断修改账户类型按钮是否改变状态 */
+							$("#switchEditTypeBtn").click(function() {
+								if($("#" + dbUsertype).prop("checked") == true){
+									$("#editUserType").attr("disabled", "disabled");
+								}else {
+									$("#editUserType").removeAttr("disabled", "disabled");
+								}
+							})
+							
+							/* 对切换账户类型按钮添加监视 */
+							$("#editUserType").click(function() {
+								var userType = null;
+								if(dbUsertype == "manager"){
+									userType = "emp";
+								}else {
+									userType = "manager";
+								}
+								var url = "${APP_PATH }/user/updateUserType/" + userId;
+								var args = {"_method" : "PUT",
+											"usertype" : userType};
+								$.post(url, args, function(result) {
+									alert("修改成功！");
+									$("#editUserType").attr("disabled", "disabled");
+									$("#accountModal").modal("hide");
+								})
+							})
+							
+						}else {
+							alert("该用户还没有创建账户")
+						}
+					})
+					return false;
+				})
+				$("#accountConfirmBtn").click(function() {
+					$("#accountModal").modal("hide");
+				})			
+				
 
 				/* 批量删除员工 */
 				/* 1.全选/全不选按钮 */
@@ -400,7 +479,7 @@
 					}
 					var flag = confirm("确定删除" + nameList + "的信息吗？");
 					if (flag) {
-						var url = "${APP_PATH}/emps/" + list;
+						var url = "${APP_PATH}/emp/emps/" + list;
 						var args = {
 							"date": new Date(),
 							"_method": "DELETE"
@@ -427,10 +506,11 @@
 						$("#searchForm").parent().removeClass("has-error");
 						$("#searchForm").next("span").removeClass("glyphicon glyphicon-remove form-control-feedback");
 						$("#searchHelpBlock").text("");
+						switchEmpsAndSearch = 1;
+						searchStr = searchContent;
 					}
 					
-					switchEmpsAndSearch = 1;
-					searchStr = searchContent;
+					
 					toPage(1);
 					/* 查找相应员工信息 */
 					
@@ -568,6 +648,92 @@
 				</div>
 			</div>
 		</div>
+		
+		<!-- 查看员工账户的模态框 -->
+		<div class="modal fade" id="accountModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title" id="accountModalLabel">员工账户信息</h4>
+					</div>
+					<div class="modal-body">
+	
+						<form class="form-horizontal" id="userForm">
+							<div  class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">员工ID</label>
+							<div class="col-sm-10">
+								<p id="empUserId" class="form-control-static"></p>
+							</div>
+							</div>
+							<div class="form-group">
+								<label for="inputEmail3" class="col-sm-2 control-label">用户名</label>
+								<div class="col-sm-10">
+									<p id="empUsername" class="form-control-static"></p>
+									<input type="hidden" name="lastName" id="editInputName" value="">
+								</div>
+							</div>
+	
+							<div class="form-group">
+								<label for="input" class="col-sm-2 control-label">密码</label>
+								<div class="col-sm-10">
+									<p id="empUserPassword" class="form-control-static"></p>
+									<input type="hidden" name="lastName" id="editInputName" value="">
+								</div>
+							</div>
+	
+							<div class="form-group">
+								<label for="input" class="col-sm-2 control-label">密保问题</label>
+								<div class="col-sm-10">
+									<p id="empUserQuestion" class="form-control-static"></p>
+									<input type="hidden" name="lastName" id="editInputName" value="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="input" class="col-sm-2 control-label">密保答案</label>
+								<div class="col-sm-10">
+									<p id="empUserAnswer" class="form-control-static"></p>
+									<input type="hidden" name="lastName" id="editInputName" value="">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="input" class="col-sm-2 control-label">注册时间</label>
+								<div class="col-sm-10">
+									<p id="empUserRegTime" class="form-control-static"></p>
+									<input type="hidden" name="lastName" id="editInputName" value="">
+								</div>
+							</div>
+							<div class="form-group" id="switchEditTypeBtn">
+								<label for="input" class="col-sm-2 control-label">用户类型</label>
+								<div class="col-sm-6">
+									<label class="radio-inline"> 
+									<input type="radio"
+										name="inlineRadioOptions" id="manager" value="manager">
+										管理员
+									</label> <label class="radio-inline"> <input type="radio"
+										name="inlineRadioOptions" id="emp" value="emp">
+										员工
+									</label>
+								</div>
+								<div class="col-sm-4">
+									<button id="editUserType" type="button" class="btn btn-danger btn-sm" disabled="disabled">
+										修改用户类型
+									</button>
+								</div>
+							</div>
+						</form>
+	
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" id="accountConfirmBtn">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<!-- 标题栏 -->
 		<div class="row">
 			<nav class="navbar navbar-default navbar-fixed-top">
@@ -608,16 +774,17 @@
 										<li><a href="#">One more separated link</a></li>
 									  </ul> -->
 						<ul class="nav navbar-nav navbar-right">
-							<li><a href="#">注册</a></li>
+							<li><a href="#">你好！&nbsp;</a></li>
 							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">登陆
-									<span class="caret"></span></a>
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+									&nbsp;${sessionScope.username }&nbsp;&nbsp;
+									<span class="caret"></span>
+								</a>
 								<ul class="dropdown-menu">
-									<li><a href="#">Action</a></li>
-									<li><a href="#">Another action</a></li>
-									<li><a href="#">Something else here</a></li>
+									<li><a href="#">个人信息</a></li>
+									<li><a href="#">修改密码</a></li>
 									<li role="separator" class="divider"></li>
-									<li><a href="#">Separated link</a></li>
+									<li><a href="${APP_PATH }/logout.do">注销登录</a></li>
 								</ul>
 							</li>
 						</ul>

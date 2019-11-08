@@ -25,14 +25,18 @@ import com.xuyan.crud.bean.Employee;
 import com.xuyan.crud.bean.Msg;
 import com.xuyan.crud.service.DepartmentService;
 import com.xuyan.crud.service.EmployeeService;
+import com.xuyan.crud.service.UserService;
 
 @Controller
+@RequestMapping("/emp")
 public class EmployeeController {
 	
 	@Autowired
 	EmployeeService employeeService;
 	@Autowired
 	DepartmentService departmentService;
+	@Autowired
+	UserService userService;
 	
 	// 查询所有数据
 	@ResponseBody
@@ -102,6 +106,11 @@ public class EmployeeController {
 	@RequestMapping(value = "/emp/{id}", method = RequestMethod.DELETE)
 	public Msg deleteEmp(@PathVariable("id") Integer id) {
 		Msg msg = new Msg();
+		long count = userService.getUserByCount(id);
+		if(count > 0) {
+			userService.deleteUserById(id);
+		}
+		
 		employeeService.deleteEmp(id);
 		
 		return msg.success();
@@ -114,6 +123,10 @@ public class EmployeeController {
 		Msg msg = new Msg();
 		String[] str = ids.split(",");
 		for (String id : str) {
+			long count = userService.getUserByCount(Integer.parseInt(id));
+			if(count > 0) {
+				userService.deleteUserById(Integer.parseInt(id));
+			}
 			employeeService.deleteEmp(Integer.parseInt(id));
 		}
 		

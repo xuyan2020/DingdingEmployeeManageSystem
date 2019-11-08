@@ -1,5 +1,6 @@
 package com.xuyan.crud.test;
 
+import java.util.List;
 import java.util.Random;
 
 import org.apache.ibatis.session.SqlSession;
@@ -11,8 +12,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.xuyan.crud.bean.Department;
 import com.xuyan.crud.bean.Employee;
+import com.xuyan.crud.bean.User;
+import com.xuyan.crud.bean.UserExample;
+import com.xuyan.crud.bean.UserExample.Criteria;
 import com.xuyan.crud.dao.DepartmentMapper;
 import com.xuyan.crud.dao.EmployeeMapper;
+import com.xuyan.crud.dao.UserMapper;
 
 /*
  * 使用SpringTest测试
@@ -31,28 +36,38 @@ public class MapperTest {
 	@Autowired
 	EmployeeMapper employeeMapper;
 	@Autowired
+	UserMapper userMapper;
+	@Autowired
 	SqlSession sqlSession;
 	
 	@Test
 	public void testCRUD() {
 		EmployeeMapper mapper = sqlSession.getMapper(EmployeeMapper.class);
 		
-		for(int i = 0 ; i < 300 ; i ++) {
-			Random random = new Random();
-			String gender = "";
-			String name = GenarateName.getName().toString();
-			if(random.nextInt(2) == 0) {
-				gender = "Male";
-			}else {
-				gender = "Female";
-			}
-			
-			mapper.insertSelective(new Employee(null, name, gender, name + "@gmail.com", 3));
-			
+//		for(int i = 0 ; i < 300 ; i ++) {
+//			Random random = new Random();
+//			String gender = "";
+//			String name = GenarateName.getName().toString();
+//			if(random.nextInt(2) == 0) {
+//				gender = "Male";
+//			}else {
+//				gender = "Female";
+//			}
+//			
+//			mapper.insertSelective(new Employee(null, name, gender, name + "@gmail.com", 3));
+//			
+//		}
+	}
+	
+	@Test
+	public void testUser() {
+		UserExample example = new UserExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andEmpidEqualTo(1);
+		List<User> l = userMapper.selectByExample(example);
+		for (User user : l) {
+			System.out.println(user);
 		}
-       
-		
-		
 	}
 	
 }
