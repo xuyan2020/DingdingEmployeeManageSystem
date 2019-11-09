@@ -157,7 +157,15 @@ public class EmployeeController {
 		return Msg.success().add("pageInfo", page);
 	}
 	
-
+	// 根据部门id获取部门人数
+	@ResponseBody
+	@RequestMapping("/empCountByDepId")
+	public Msg getEmpCountByDepId(@RequestParam("depid") Integer depid) {
+		Msg msg = new Msg();
+		long countByDepId = employeeService.getCountByDepId(depid);
+		
+		return msg.success().add("count", countByDepId);
+	}
 	
 	
 	@RequestMapping("/toList")

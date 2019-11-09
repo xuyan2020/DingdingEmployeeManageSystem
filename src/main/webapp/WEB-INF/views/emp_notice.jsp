@@ -322,9 +322,9 @@
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
-						<li class="active" ><a href="${APP_PATH}/toNotice.do">首页 <span class="sr-only">(current)</span></a></li>
+						<li class="active"><a href="${APP_PATH}/toNotice.do">首页 <span class="sr-only">(current)</span></a></li>
 						<li ><a href="${APP_PATH}/tolist.do">员工管理</a></li>
-						<li>
+						<li >
 							<a href="${APP_PATH }/toDeptList.do">部门管理</a>
 						</li>
 						<li class="dropdown">
@@ -372,10 +372,12 @@
 				<div style="border: 0px, 0px;">
 					<form class="navbar-form navbar-left">
 						<div class="form-group">
+						<!-- 
 							<button type="button" class="btn btn-default" id="addNoticeBtn">
 								<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
 								发布新通知
 							</button>
+						 -->
 						</div>
 					</form>
 				</div>
@@ -397,8 +399,10 @@
 							<h5>
 								面向部门：<span class="toDept" value="${notice.todeptid }"></span>
 							</h5>
+							<%-- 
 							<a href="#" value="${notice.id }" class="editNoticeBtn">修改</a>&nbsp;&nbsp;&nbsp;&nbsp;
 							<a href="#" value="${notice.id }" class="delNoticeBtn">删除</a>
+							 --%>
 						</div>
 						<div id="a${notice.id }" class="panel-collapse collapse in" style="display:none">
 							<div class="panel-body">

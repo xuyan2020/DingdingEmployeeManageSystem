@@ -12,11 +12,14 @@ public class PowerController {
 	// 登陆
 	@RequestMapping("/login.do")
 	public String logIn(@RequestParam("username") String username, 
-			@RequestParam("empid") Integer id, HttpSession session) {
+			@RequestParam("empid") Integer id, 
+			@RequestParam("usertype") String userType, HttpSession session) {
 		// 根据Empid查询数据库账户类型，放到session中
 		session.setAttribute("username", username);
 		session.setAttribute("id", id);
+		session.setAttribute("usertype", userType);
 		session.setMaxInactiveInterval(3000);
+		
 		return "redirect:/notice/notices";
 	}
 	
@@ -39,5 +42,23 @@ public class PowerController {
 	@RequestMapping("/toNotice.do")
 	public String toManagerNotice() {
 		return "redirect:/notice/notices";
+	}
+	
+	// 去部门管理页面
+	@RequestMapping("/toDeptList.do")
+	public String toManagerDept() {
+		return "redirect:/dept/getDepts";
+	}
+	
+	// 去员工广场页面
+	@RequestMapping("/toForum.do")
+	public String toForum() {
+		return "redirect:/article/articles";
+	}
+	
+	// 去回复我的页面
+	@RequestMapping("/toReply.do")
+	public String toReply() {
+		return "redirect:/comment/getAllByEmpid";
 	}
 }

@@ -69,7 +69,7 @@
 					var emailNode = $("<td></td>").append(item.email);
 					var deptidNode = $("<td></td>").append(item.deptid);
 					var deptnameNode = $("<td></td>").append(item.department.deptname);
-
+					/* 
 					var addBtn = $("<button></button>").attr("value", item.id).addClass("btn btn-success btn-sm editEmpBtn")
 						.append($("<span></span>").addClass("glyphicon glyphicon-pencil"))
 						.append(" ").append("编辑");
@@ -82,10 +82,10 @@
 						.append($("<span></span>").addClass("glyphicon glyphicon-trash"))
 						.append(" ").append("删除");
 					var operateNode = $("<td></td>").append(addBtn).append(" ").append(accountBtn).append(" ").append(deleteBtn);
-
+					 */
 					var newTrNode = $("<tr></tr>").append(checkBoxNode).append(idNode).append(nameNode)
 						.append(genderNode).append(emailNode).append(deptidNode)
-						.append(deptnameNode).append(operateNode);
+						.append(deptnameNode);
 					$("tbody").append(newTrNode);
 				})
 			}
@@ -753,22 +753,22 @@
 					<!-- Collect the nav links, forms, and other content for toggling -->
 					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 						<ul class="nav navbar-nav">
-						<li ><a href="${APP_PATH}/toNotice.do">首页 <span class="sr-only">(current)</span></a></li>
-						<li class="active"><a href="${APP_PATH}/tolist.do">员工管理</a></li>
-						<li >
-							<a href="${APP_PATH }/toDeptList.do">部门管理</a>
-						</li>
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-								员工论坛
-								<span class="caret"></span>
-							</a>
-							<ul class="dropdown-menu">
-								<li><a href="${APP_PATH }/toForum.do">员工广场</a></li>
-								<li><a href="${APP_PATH }/toReply.do">回复我的</a></li>
-							</ul>
-						</li>
-					</ul>
+							<li ><a href="${APP_PATH}/toNotice.do">首页 <span class="sr-only">(current)</span></a></li>
+							<li class="active"><a href="${APP_PATH}/tolist.do">员工管理</a></li>
+							<li >
+								<a href="${APP_PATH }/toDeptList.do">部门管理</a>
+							</li>
+							<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+									员工论坛
+									<span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a href="${APP_PATH }/toForum.do">员工广场</a></li>
+									<li><a href="${APP_PATH }/toReply.do">回复我的</a></li>
+								</ul>
+							</li>
+						</ul>
 						<ul class="nav navbar-nav navbar-right">
 							<li><a href="#">你好！&nbsp;</a></li>
 							<li class="dropdown">
@@ -802,8 +802,10 @@
 			<div class="row">
 				<ul class="nav navbar-nav">
 					<div>
+					<!-- 
 						<button type="button" class="btn btn-default" id="addEmpModalBtn">添加</button>
 						<button type="button" class="btn btn-default" id="delEmpModalBtn">删除</button>
+					 -->
 					</div>
 				</ul>
 				<ul class="nav navbar-nav navbar-right" >

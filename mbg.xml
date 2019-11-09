@@ -55,8 +55,11 @@
 		<table tableName="EMPLOYEE" domainObjectName="Employee"></table>
 		<table tableName="DEPARTMENT" domainObjectName="Department"></table>
 		<table tableName="emp_user" domainObjectName="User"></table>
-		-->
 		<table tableName="notice" domainObjectName="Notice"></table>
-
+		<table tableName="article" domainObjectName="Article"></table>
+		-->
+		<table tableName="comment" domainObjectName="Comment"></table>
+		
+		
 	</context>
 </generatorConfiguration>

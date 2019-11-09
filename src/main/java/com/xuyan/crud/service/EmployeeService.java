@@ -60,4 +60,12 @@ public class EmployeeService {
 		List<Employee> list = employeeMapper.selectByExampleWithDept(example);
 		return list;
 	}
+
+	public long getCountByDepId(Integer depid) {
+		EmployeeExample example = new EmployeeExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andDeptidEqualTo(depid);
+		long l = employeeMapper.countByExample(example);
+		return l;
+	}
 }

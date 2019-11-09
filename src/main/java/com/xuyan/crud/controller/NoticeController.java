@@ -29,13 +29,18 @@ public class NoticeController {
 	
 	// 获取全部通知
 	@RequestMapping(value = "/notices", method = RequestMethod.GET)
-	public String getAllNotice(@RequestParam(value = "pn", defaultValue = "1") Integer pn, Map<String, Object> map) {
+	public String getAllNotice(@RequestParam(value = "pn", defaultValue = "1") Integer pn, Map<String, Object> map, 
+			HttpSession session) {
 		PageHelper.startPage(pn, 5);
 		List<Notice> all = noticeService.getAll();
 		
 		PageInfo pageInfo = new PageInfo(all, 5);
 		map.put("pageInfo", pageInfo);
-		return "manager_notice";
+		if(session.getAttribute("usertype").equals("manager")) {
+			return "manager_notice";
+		}else {
+			return "emp_notice";
+		}
 	}
 	
 	// 获取单条通知

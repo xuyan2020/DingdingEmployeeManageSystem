@@ -17,5 +17,20 @@ public class DepartmentService {
 	public List<Department> getAll(){
 		return departmentMapper.selectByExample(null);
 	}
+
+	public void addNewDept(Department department) {
+		departmentMapper.insertSelective(department);
+		
+	}
+
+	public Department getDeptById(Integer id) {
+		Department department = departmentMapper.selectByPrimaryKey(id);
+		return department;
+	}
+
+	public void updateDeptById(Department department) {
+		departmentMapper.updateByPrimaryKeySelective(department);
+		
+	}
 	
 }

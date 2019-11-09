@@ -64,9 +64,15 @@
 							$("#alert4").hide();
 							$("#usernameLogin").val("");
 							$("#passwordLonin").val("");
+							var userType = null;
+							if($("#manager").prop("selected") == true){
+								userType = "manager";
+							}else {
+								userType = "emp";
+							}
 							
 							/* 转发到其他页面 */
-							window.location.href = "${APP_PATH }/login.do?username=" + username + "&empid=" + id;
+							window.location.href = "${APP_PATH }/login.do?username=" + username + "&empid=" + id + "&usertype=" + userType;
 						}
 					}
 					return false;
@@ -284,8 +290,8 @@
 							<label for="inputPassword3" class="col-sm-2 control-label">登录类型</label>
 							<div class="col-sm-4">
 								<select id="usertypeLogin" class="form-control" name="usertype">
-									<option value="manager">管理员</option>
-									<option value="emp">员工</option>
+									<option value="manager" id="manager">管理员</option>
+									<option value="emp" id="emp">员工</option>
 								</select>
 							</div>
 						</div>
