@@ -42,7 +42,7 @@ public class EmployeeService {
 		EmployeeExample example = new EmployeeExample();
 		Criteria criteria = example.createCriteria();
 		criteria.andIdEqualTo(id);
-		employeeMapper.updateByExample(emp, example);
+		employeeMapper.updateByExampleSelective(emp, example);
 	}
 
 	public void deleteEmp(Integer id) {
@@ -67,5 +67,11 @@ public class EmployeeService {
 		criteria.andDeptidEqualTo(depid);
 		long l = employeeMapper.countByExample(example);
 		return l;
+	}
+
+	public Integer getDeptIdByEmpId(Integer empId) {
+		Employee emp = employeeMapper.selectByPrimaryKey(empId).get(0);
+		return emp.getDeptid();
+		
 	}
 }

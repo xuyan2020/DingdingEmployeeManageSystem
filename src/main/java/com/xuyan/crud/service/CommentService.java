@@ -43,5 +43,10 @@ public class CommentService {
 		return list;
 	}
 
+	public void addNewComment(Comment comment) {
+		commentMapper.insertSelective(comment);
+		
+	}
+
 
 }

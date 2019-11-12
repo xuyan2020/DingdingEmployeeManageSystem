@@ -35,17 +35,22 @@ public class ArticleController {
 	@RequestMapping(value = "/articles", method = RequestMethod.GET)
 	public String getAllArticle(@RequestParam(value = "pn", defaultValue = "1") Integer pn, Map<String, Object> map, 
 			HttpSession session) {
-		PageHelper.startPage(pn, 5);
-		List<Article> articles = articleService.getAll();
-		PageInfo page = new PageInfo(articles, 5);
-		map.put("pageInfo", page);
-		List<Comment> all = commentService.getAll();
-		map.put("allComment", all);
-		if(session.getAttribute("usertype").equals("manager")) {
-			return "manager_forum";
+		if(!session.getAttribute("usertype").equals(null)) {
+			PageHelper.startPage(pn, 5);
+			List<Article> articles = articleService.getAll();
+			PageInfo page = new PageInfo(articles, 5);
+			map.put("pageInfo", page);
+			List<Comment> all = commentService.getAll();
+			map.put("allComment", all);
+			if(session.getAttribute("usertype").equals("manager")) {
+				return "manager_forum";
+			}else {
+				return "emp_forum";
+			}
 		}else {
-			return "emp_forum";
+			return "redirect:/index.jsp";
 		}
+		
 		
 	}
 	

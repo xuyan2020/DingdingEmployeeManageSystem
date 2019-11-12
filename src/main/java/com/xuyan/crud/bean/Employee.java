@@ -1,12 +1,18 @@
 package com.xuyan.crud.bean;
 
+import javax.validation.constraints.Pattern;
+
 public class Employee {
     private Integer id;
-
+    
+    @Pattern(regexp = "^[a-zA-Z0-9_]{3,15}$", 
+    		message = "用户名必须是3到15位英文字母")
     private String lastName;
 
     private String gender;
-
+    
+    @Pattern(regexp = "^([A-Za-z0-9_\\-\\.\\u4e00-\\u9fa5])+\\@([A-Za-z0-9_\\-\\.])+\\.([A-Za-z]{2,8})$", 
+    		message = "邮箱格式不正确")
     private String email;
 
     private Integer deptid;

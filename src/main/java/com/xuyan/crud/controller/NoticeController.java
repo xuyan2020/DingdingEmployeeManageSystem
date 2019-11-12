@@ -18,6 +18,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xuyan.crud.bean.Msg;
 import com.xuyan.crud.bean.Notice;
+import com.xuyan.crud.service.EmployeeService;
 import com.xuyan.crud.service.NoticeService;
 
 @Controller
@@ -26,6 +27,8 @@ public class NoticeController {
 	
 	@Autowired
 	NoticeService noticeService;
+	@Autowired
+	EmployeeService employeeService;
 	
 	// 获取全部通知
 	@RequestMapping(value = "/notices", method = RequestMethod.GET)
@@ -36,11 +39,29 @@ public class NoticeController {
 		
 		PageInfo pageInfo = new PageInfo(all, 5);
 		map.put("pageInfo", pageInfo);
-		if(session.getAttribute("usertype").equals("manager")) {
-			return "manager_notice";
+		return "manager_notice";
+		
+	}
+	
+	
+	// 根据员工id获取部门id后查找相应通知
+	@RequestMapping("/emp_notice")
+	public String getAllByEmpid(@RequestParam(value = "pn", defaultValue = "1") Integer pn, Map<String, Object> map, 
+			HttpSession session) {
+		if(session.getAttribute("id") != null) {
+			Integer empId = (Integer) session.getAttribute("id");
+			Integer deptId = employeeService.getDeptIdByEmpId(empId);
+			PageHelper.startPage(pn, 5);
+			List<Notice> allByDeptId = noticeService.getAllByDeptId(deptId);
+			
+			
+			PageInfo pageInfo = new PageInfo(allByDeptId, 5);
+			map.put("pageInfo", pageInfo);
+			return "emp_notice"; 
 		}else {
-			return "emp_notice";
+			return "redirect:/index.jsp";
 		}
+		
 	}
 	
 	// 获取单条通知

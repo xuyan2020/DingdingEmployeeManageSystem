@@ -1,5 +1,7 @@
 package com.xuyan.crud.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,15 @@ public class NoticeService {
 
 	public void deleteNoticeById(Integer id) {
 		noticeMapper.deleteByPrimaryKey(id);
+		
+	}
+
+	public List<Notice> getAllByDeptId(Integer deptId) {
+		List<Notice> list = new ArrayList<Notice>();
+		NoticeExample example = new NoticeExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andTodeptidIn(Arrays.asList(0, deptId));
+		return noticeMapper.selectByExampleWithBLOBs(example);
 		
 	}
 

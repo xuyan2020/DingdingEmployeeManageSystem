@@ -9,6 +9,10 @@
 <title>通知公告</title>
 	<%
 		pageContext.setAttribute("APP_PATH", request.getContextPath());
+		response.setHeader("Cache-Control","no-cache"); //不对页面进行缓存，再次访问时将从服务器重新获取最新版本
+		response.setHeader("Cache-Control","no-store"); //任何情况下都不缓存页面
+		response.setDateHeader("Expires", -1); //使缓存过期
+		response.setHeader("Pragma","no-cache"); //HTTP 1.0 向后兼容
 	%>
 	<style type="text/css">
 		body{ 
@@ -37,6 +41,9 @@
 	<link rel="stylesheet" href="${APP_PATH }/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" />
 	<script type="text/javascript">
 		$(function() {
+			javascript:window.history.forward(1);
+			
+
 			/* 根据ID查找部门名称，初始化通知信息内的面向部门 */
 			$(".toDept").each(function(){
 				var toDeptId = $(this).attr("value");
@@ -197,6 +204,187 @@
 				}
 				return false;
 			})
+			
+			/* 修改密码 */
+		$("#editPassword").click(function(){
+			$("#editPasswordModal").modal();
+			/* 根据session获取相应的用户信息 */
+			
+			var dbAnswer = null;
+			var answer = $("#answer").val();
+			var url = "${APP_PATH }/user/user/" + ${sessionScope.id == null ? 0 : sessionScope.id };
+			var args = {"date" : new Date()};
+			$.get(url, args, function(result){
+				var question = result.extend.user.question;
+				dbAnswer = result.extend.user.answer;
+				$("#question").text(question);
+			})
+			
+			$("#saveNewPassword").click(function(){
+				
+				/* 检测密码 */
+				var userReg = /^[a-zA-Z0-9_-]{4,16}$/;
+				var password = $("#newPassword").val();
+				var passwordPre = $("#newConfirmPassword").val();
+				if(!userReg.test(password)){
+					$("#newPassword").parent().removeClass("has-success");
+					$("#newPassword").next("span").removeClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#newPassword").parent().addClass("has-error");
+					$("#newPassword").next("span").addClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#newPassword").next().next().text("密码由4到16位字母或数字组成");
+					return false;
+				}else {
+					$("#newPassword").parent().removeClass("has-error");
+					$("#newPassword").next("span").removeClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#newPassword").parent().addClass("has-success");
+					$("#newPassword").next("span").addClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#newPassword").next().next().text("");
+				}
+				if(password != passwordPre){
+					$("#newConfirmPassword").parent().removeClass("has-success");
+					$("#newConfirmPassword").next("span").removeClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#newConfirmPassword").parent().addClass("has-error");
+					$("#newConfirmPassword").next("span").addClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#newConfirmPassword").next().next().text("两次输入的密码不一致");
+					return false;
+				}else {
+					$("#newConfirmPassword").parent().removeClass("has-error");
+					$("#newConfirmPassword").next("span").removeClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#newConfirmPassword").parent().addClass("has-success");
+					$("#newConfirmPassword").next("span").addClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#newConfirmPassword").next().next().text("");
+				}
+				
+				/* 检测密保问题答案 */
+				if($("#answer").val() != dbAnswer){
+					$("#answer").parent().removeClass("has-success");
+					$("#answer").next("span").removeClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#answer").parent().addClass("has-error");
+					$("#answer").next("span").addClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#answer").next().next().text("密保问题答案错误");
+					return false;
+				}else {
+					$("#answer").parent().removeClass("has-error");
+					$("#answer").next("span").removeClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#answer").parent().addClass("has-success");
+					$("#answer").next("span").addClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#answer").next().next().text("");
+				}
+				
+				var url = "${APP_PATH }/user/updateUserType/" + ${sessionScope.id == null ? 0 : sessionScope.id };
+				var args = {
+					"password" : password,
+					"_method" : "PUT"
+				};
+				$.post(url, args, function(result){
+					alert("修改成功！");
+					$("#editPasswordModal").modal("hide");
+					window.location.reload();
+				})
+				
+			})
+		})
+		$("#personInfo").click(function(){
+			$("#empEditModal").modal({
+				/* 点击背景不关闭 */
+				backdrop: "static"
+			});
+			
+			/* 每次打开模态框都即时更新要修改员工的ID */
+			editID = $(this).attr("value");
+			
+			/* ajax获取部门信息 */
+			var url = "${APP_PATH}/dept/depts";
+			var args = {
+				"date": new Date()
+			};
+			$.get(url, args, function(result) {
+				var depts = result.extend.depts;
+				$("#editEmpBtnSelect").empty();
+				$.each(depts, function(index, item) {
+					$("#editEmpBtnSelect").append($("<option></option>").text(item.deptname).val(item.deptid));
+				})
+			})
+			
+			
+			/* 获取员工信息并回显 */
+			var url = "${APP_PATH}/emp/emp/" + editID;
+			var args = {
+				"date": new Date()
+			};
+			$.get(url, args, function(result) {
+				var emp = result.extend.employee;
+				$("#editEmpBtnName").text(emp.lastName);
+				if (emp.gender == "Male") {
+					$("#editEmpBtnFemale").attr("checked", false);
+					$("#editEmpBtnMale").attr("checked", true);
+				} else {
+					$("#editEmpBtnMale").attr("checked", false);
+					$("#editEmpBtnFemale").attr("checked", true);
+				}
+				$("#editEmpBtnEmail").val(emp.email);
+				$("#editEmpBtnSelect option").each(function(index, item) {
+					if ($(item).val() == emp.deptid) {
+						$(item).attr("selected", true);
+					} else {
+						$(item).attr("selected", false);
+					}
+				})
+			})
+			
+			$("#editEmpBtn").click(function() {
+				$("#editEmpBtn").attr("disabled", "disabled");
+				setTimeout(function() {
+					$("#editEmpBtn").removeAttr("disabled");
+				},1000)
+				/* 校验邮箱格式 */
+				var email = $("#editEmpBtnEmail").val();
+				var emailReg = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})$/;
+				emailReg.test(email);
+				if (!emailReg.test(email)) {
+					$("#editEmpBtnEmail").parent().removeClass("has-success");
+					$("#editEmpBtnEmail").next("span").removeClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#editEmpBtnEmail").parent().addClass("has-error");
+					$("#editEmpBtnEmail").next("span").addClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#editEmpBtnEmailHelpBlock").text("邮箱格式不正确");
+					return false;
+				} else {
+					$("#editEmpBtnEmail").parent().removeClass("has-error");
+					$("#editEmpBtnEmail").next("span").removeClass("glyphicon glyphicon-remove form-control-feedback");
+					$("#editEmpBtnEmail").parent().addClass("has-success");
+					$("#editEmpBtnEmail").next("span").addClass("glyphicon glyphicon-ok form-control-feedback");
+					$("#editEmpBtnEmailHelpBlock").text("邮箱格式正确");
+				}
+				$("#editEmpBtn").attr("disabled", "disabled");
+				/* 如果没有问题则提交 */
+				var url = "${APP_PATH}/emp/emp/" + editID;
+				var args = $("#empEditForm").serialize() + "&_method=PUT";
+				$.post(url, args, function(result) {
+					/* 后端校验通过 */
+					if (result.code == 200) {
+						$("#empEditModal").modal("hide");
+						$("#editEmpBtn").removeAttr("disabled", "disabled");
+						/* 移除所有校验效果 */
+						$("#editEmpBtnEmail").val("");
+						$("#editEmpBtnEmail").parent().removeClass("has-success");
+						$("#editEmpBtnEmail").next("span").removeClass("glyphicon glyphicon-ok form-control-feedback");
+						$("#editEmpBtnEmailHelpBlock").text("");
+						
+					} else {
+						/* 后端校验未通过 */
+						if (result.extend.errors.email != undefined) {
+							alert(result.extend.errors.email);
+						}else if(result.extend.errors.lastName != undefined){
+							alert(result.extend.errors.lastName);
+						}
+					}
+			
+				})
+			})
+			
+		})
+			
+			
 		})
 	</script>
 
@@ -302,6 +490,123 @@
 		</div>
 	</div>
 	
+	<!-- 修改密码模态框 -->
+	<div class="modal fade" id="editPasswordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">修改密码</h4>
+				</div>
+				<div class="modal-body">
+	
+					<form class="form-horizontal" id="newNoticeForm">
+						
+						<div class="form-group">
+							<label class="col-sm-2 control-label">密保问题</label>
+							<div class="col-sm-10">
+								<p id="question" class="form-control-static"></p>
+								<input type="hidden" name="lastName" id="editInputName" value="">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">答案</label>
+							<div class="col-sm-10 has-feedback">
+								<input name="title" type="input" class="form-control" id="answer" placeholder="密保问题对应的答案">
+								<span></span>
+								<span id="nameHelpBlock" class="help-block"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">新密码</label>
+							<div class="col-sm-10 has-feedback">
+								<input name="title" type="input" class="form-control" id="newPassword" placeholder="新密码">
+								<span></span>
+								<span id="nameHelpBlock" class="help-block"></span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">确认新密码</label>
+							<div class="col-sm-10 has-feedback">
+								<input name="title" type="input" class="form-control" id="newConfirmPassword" placeholder="重复输入新密码">
+								<span></span>
+								<span id="nameHelpBlock" class="help-block"></span>
+							</div>
+						</div>
+	
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<button type="button" class="btn btn-primary" id="saveNewPassword">修改</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 员工修改的模态框 -->
+	<div class="modal fade" id="empEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">修改信息</h4>
+				</div>
+				<div class="modal-body">
+	
+					<form class="form-horizontal" id="empEditForm">
+						<div class="form-group">
+							<label class="col-sm-2 control-label">Name</label>
+							<div class="col-sm-10">
+								<p id="editEmpBtnName" class="form-control-static"></p>
+							</div>
+						</div>
+	
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">Gender</label>
+							<div class="col-sm-10">
+								<label class="radio-inline">
+									<input type="radio" name="gender" id="editEmpBtnMale" value="Male" checked="checked">
+									Male
+								</label>
+								<label class="radio-inline">
+									<input type="radio" name="gender" id="editEmpBtnFemale" value="Female">
+									Female
+								</label>
+							</div>
+						</div>
+	
+						<div class="form-group">
+							<label for="input" class="col-sm-2 control-label">Email</label>
+							<div class="col-sm-10 has-feedback">
+								<input name="email" type="input" class="form-control" id="editEmpBtnEmail" placeholder="邮箱地址">
+								<span></span>
+								<span id="editEmpBtnEmailHelpBlock" class="help-block"></span>
+							</div>
+						</div>
+	
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">Department</label>
+							<div class="col-sm-4">
+								<select id="editEmpBtnSelect" class="form-control" name="deptid">
+	
+								</select>
+							</div>
+						</div>
+					</form>
+	
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="editEmpBtn">Edit</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	
 	<!-- 标题栏 -->
 	<div class="row">
@@ -346,8 +651,8 @@
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li><a href="#">个人信息</a></li>
-								<li><a href="#">修改密码</a></li>
+								<li><a href="#" id="personInfo" value="${sessionScope.id }">个人信息</a></li>
+								<li><a href="#" id="editPassword">修改密码</a></li>
 								<li role="separator" class="divider"></li>
 								<li><a href="${APP_PATH }/logout.do">注销登录</a></li>
 							</ul>

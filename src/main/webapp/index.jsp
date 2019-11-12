@@ -16,6 +16,8 @@
 	href="${APP_PATH }/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" />
 <script type="text/javascript">
 		$(function(){
+			javascript:
+				window.history.forward(1);
 			$("#login").hover(function(){
 				$(this).removeAttr("style");
 			},function(){

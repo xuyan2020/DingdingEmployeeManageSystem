@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.xuyan.crud.bean.Article;
 import com.xuyan.crud.bean.Comment;
 import com.xuyan.crud.bean.Msg;
 import com.xuyan.crud.service.ArticleService;
@@ -54,6 +53,17 @@ public class CommentController {
 	public Msg deleteCommentById(@PathVariable("id") Integer id) {
 		Msg msg = new Msg();
 		commentService.deleteCommentById(id);
+		
+		return msg.success();
+	}
+	
+	
+	// 添加新通知
+	@ResponseBody
+	@RequestMapping(value = "/comment", method = RequestMethod.PUT)
+	public Msg addNewComment(Comment comment) {
+		Msg msg = new Msg();
+		commentService.addNewComment(comment);
 		
 		return msg.success();
 	}
